@@ -18,13 +18,13 @@ checkcompr() {
     ;;
     *)
       echo -e ">> ${BRed}Invalid ${NoCol}Compression Algorithm"
-      echo -e ">> ${BGreen}Select ${NoCol}one of: ${BCyan}lzo,lzo-rle,lz4,lz4hc,842,zstd${NoCol}"
+      echo -e ">> ${BGreen}Select ${NoCol}one of: ${BCyan}lzo, lzo-rle, lz4, lz4hc, 842, zstd${NoCol}"
       exit 1
     ;;
   esac
 }
 
-echo -e ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.3${NoCol}"
+echo -e ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.4${NoCol}"
 
 # Run as Root check
 rootcheck="$(id -u)"
@@ -53,7 +53,7 @@ while test $# -gt 0; do
         exit 0
       else
         echo -e ">> ${BPurple}ZRAM ${BRed}Not Enabled${NoCol}"
-        exit 0
+        exit 1
       fi
     ;;
     -c|alg)
