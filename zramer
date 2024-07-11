@@ -24,7 +24,7 @@ checkcompr() {
   esac
 }
 
-echo -e ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.2${NoCol}"
+echo -e ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.3${NoCol}"
 
 # Run as Root check
 rootcheck="$(id -u)"
@@ -86,9 +86,17 @@ echo -e ">> ${BYellow}CPU THREADS: ${BCyan}$cputhrnew${NoCol}"
 echo -e ">> ${BYellow}MEM TOTAL: ${BCyan}$memtotalnew${NoCol}"
 echo -e ">> ${BYellow}COMPRESSION: ${BCyan}$zcompr${NoCol}"
 
-# Enable ZRAM
+# Enable or Update ZRAM
 if [ -e /dev/zram0 ]; then
-  echo -e ">> ${BPurple}ZRAM ${NoCol}is ${BGreen}Already Enabled${NoCol}"
+  swapoff /dev/zram0
+  modprobe -r zram
+  modprobe zram
+  echo $zcompr > /sys/block/zram0/comp_algorithm
+  echo $memtotalnew > /sys/block/zram0/disksize
+  echo $cputhrnew > /sys/block/zram0/max_comp_streams
+  mkswap --label zram0 /dev/zram0
+  swapon --priority 100 /dev/zram0
+  echo -e ">> ${Bcyan}Updated ${BPurple}ZRAM${NoCol}"
   exit 0
 fi
 modprobe zram
