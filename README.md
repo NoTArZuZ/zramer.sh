@@ -1,7 +1,7 @@
 # ZRAMer
 ### Auto ZRAM generator shell script. That you can use in any init system!
 ## How to use
-To **enable** ZRAM, you just need to run ```zramer```. It will automatically pick your total RAM and CPU threads.
+To **enable** or **update** ZRAM, you just need to run ```zramer```. It will automatically pick your total RAM and CPU threads.
 
 To customize them add these flags:
 * ```-t``` or ```cpu``` - CPU threads number
