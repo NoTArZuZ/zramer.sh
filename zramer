@@ -96,7 +96,7 @@ if [ -e /dev/zram0 ]; then
   echo $cputhrnew > /sys/block/zram0/max_comp_streams
   mkswap --label zram0 /dev/zram0
   swapon --priority 100 /dev/zram0
-  echo -e ">> ${Bcyan}Updated ${BPurple}ZRAM${NoCol}"
+  echo -e ">> ${BCyan}Updated ${BPurple}ZRAM${NoCol}"
   exit 0
 fi
 modprobe zram
