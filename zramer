@@ -17,19 +17,19 @@ checkcompr() {
       true
     ;;
     *)
-      echo ">> ${BRed}Invalid ${NoCol}Compression Algorithm"
-      echo ">> ${BGreen}Select ${NoCol}one of: ${BCyan}lzo,lzo-rle,lz4,lz4hc,842,zstd${NoCol}"
+      echo -e ">> ${BRed}Invalid ${NoCol}Compression Algorithm"
+      echo -e ">> ${BGreen}Select ${NoCol}one of: ${BCyan}lzo,lzo-rle,lz4,lz4hc,842,zstd${NoCol}"
       exit 1
     ;;
   esac
 }
 
-echo ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.1${NoCol}"
+echo -e ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.2${NoCol}"
 
 # Run as Root check
 rootcheck="$(id -u)"
 if [ $rootcheck -ne 0 ]; then
-  echo ">> Run as ${BRed}Root${NoCol}"
+  echo -e ">> Run as ${BRed}Root${NoCol}"
   exit 1
 fi
 
@@ -49,10 +49,10 @@ while test $# -gt 0; do
       if [ -e /dev/zram0 ]; then
         swapoff /dev/zram0
         modprobe -r zram
-        echo ">> ${BRed}Disabled ${BPurple}ZRAM${NoCol}"
+        echo -e ">> ${BRed}Disabled ${BPurple}ZRAM${NoCol}"
         exit 0
       else
-        echo ">> ${BPurple}ZRAM ${BRed}Not Enabled${NoCol}"
+        echo -e ">> ${BPurple}ZRAM ${BRed}Not Enabled${NoCol}"
         exit 0
       fi
     ;;
@@ -82,13 +82,13 @@ while test $# -gt 0; do
 done
 
 # Summary
-echo ">> ${BYellow}CPU THREADS: ${BCyan}$cputhrnew${NoCol}"
-echo ">> ${BYellow}MEM TOTAL: ${BCyan}$memtotalnew${NoCol}"
-echo ">> ${BYellow}COMPRESSION: ${BCyan}$zcompr${NoCol}"
+echo -e ">> ${BYellow}CPU THREADS: ${BCyan}$cputhrnew${NoCol}"
+echo -e ">> ${BYellow}MEM TOTAL: ${BCyan}$memtotalnew${NoCol}"
+echo -e ">> ${BYellow}COMPRESSION: ${BCyan}$zcompr${NoCol}"
 
 # Enable ZRAM
 if [ -e /dev/zram0 ]; then
-  echo ">> ${BPurple}ZRAM ${NoCol}is ${BGreen}Already Enabled${NoCol}"
+  echo -e ">> ${BPurple}ZRAM ${NoCol}is ${BGreen}Already Enabled${NoCol}"
   exit 0
 fi
 modprobe zram
@@ -97,4 +97,4 @@ echo $memtotalnew > /sys/block/zram0/disksize
 echo $cputhrnew > /sys/block/zram0/max_comp_streams
 mkswap --label zram0 /dev/zram0
 swapon --priority 100 /dev/zram0
-echo ">> ${BGreen}Enabled ${BPurple}ZRAM ${NoCol}"
+echo -e ">> ${BGreen}Enabled ${BPurple}ZRAM ${NoCol}"
