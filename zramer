@@ -1,0 +1,100 @@
+#!/bin/sh
+
+# Made by NoTArZuZ
+
+# Colors
+NoCol='\033[0m'
+BPurple='\033[1;35m'
+BGreen='\033[1;32m'
+BYellow='\033[1;33m'
+BRed='\033[1;31m'
+BCyan='\033[1;36m'
+
+# Check for valid selected compression
+checkcompr() {
+  case $zcompr in
+    lzo|lzo-rle|lz4|lz4hc|842|zstd)
+      true
+    ;;
+    *)
+      echo ">> ${BRed}Invalid ${NoCol}Compression Algorithm"
+      echo ">> ${BGreen}Select ${NoCol}one of: ${BCyan}lzo,lzo-rle,lz4,lz4hc,842,zstd${NoCol}"
+      exit 1
+    ;;
+  esac
+}
+
+echo ">> ${BGreen}Shell ${BPurple}ZRAMer ${BRed}v0.1${NoCol}"
+
+# Run as Root check
+rootcheck="$(id -u)"
+if [ $rootcheck -ne 0 ]; then
+  echo ">> Run as ${BRed}Root${NoCol}"
+  exit 1
+fi
+
+# Auto detect CPU threads and total RAM
+cputhr="$(lscpu | awk '/^CPU\(s\):/ {printf $2}')"
+memtotal="$(free -tg | awk '/^Mem/ {printf $2}')"
+
+# Customize default CPU threads, total RAM and compression how you like
+cputhrnew="$(expr $cputhr / 1)"
+memtotalnew="$(expr $memtotal / 1 + 1)G"
+zcompr="zstd"
+
+# Arguments
+while test $# -gt 0; do
+  case $1 in
+    -s|off)
+      if [ -e /dev/zram0 ]; then
+        swapoff /dev/zram0
+        modprobe -r zram
+        echo ">> ${BRed}Disabled ${BPurple}ZRAM${NoCol}"
+        exit 0
+      else
+        echo ">> ${BPurple}ZRAM ${BRed}Not Enabled${NoCol}"
+        exit 0
+      fi
+    ;;
+    -c|alg)
+      zcompr="$2"
+      checkcompr
+      shift
+      shift
+    ;;
+    -t|cpu)
+      expr $2 / 1 >/dev/null || exit 1
+      cputhrnew="$2"
+      shift
+      shift
+    ;;
+    -m|mem)
+      expr $2 / 1 >/dev/null || exit 1
+      memtotalnew="${2}G"
+      shift
+      shift
+    ;;
+    *)
+      printf "[off] or [-s] - stop zram \n[alg] or [-c] - select compr\n[cpu] or [-t] - select cpu threads\n[mem] or [-m] - select ram gb\n"
+      exit 1
+    ;;
+  esac
+done
+
+# Summary
+echo ">> ${BYellow}CPU THREADS: ${BCyan}$cputhrnew${NoCol}"
+echo ">> ${BYellow}MEM TOTAL: ${BCyan}$memtotalnew${NoCol}"
+echo ">> ${BYellow}COMPRESSION: ${BCyan}$zcompr${NoCol}"
+
+# Enable ZRAM
+if [ -e /dev/zram0 ]; then
+  echo ">> ${BPurple}ZRAM ${NoCol}is ${BGreen}Already Enabled${NoCol}"
+  exit 0
+fi
+modprobe zram
+echo $zcompr > /sys/block/zram0/comp_algorithm
+echo $memtotalnew > /sys/block/zram0/disksize
+echo $cputhrnew > /sys/block/zram0/max_comp_streams
+mkswap --label zram0 /dev/zram0
+swapon --priority 100 /dev/zram0
+echo ">> ${BGreen}Enabled ${BPurple}ZRAM ${NoCol}"
